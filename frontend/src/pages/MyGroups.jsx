@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import { Users, Search, ArrowLeft } from 'lucide-react'; // Icons
-import GroupChat from '../components/chat/GroupChat'; // Import the component we created above
+import { Users, ArrowLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import GroupChat from '../components/chat/GroupChat';
 
 export default function MyGroups() {
     const [groups, setGroups] = useState([]);
@@ -41,7 +41,7 @@ export default function MyGroups() {
     };
 
     return (
-        <div className='bg-background h-screen w-full flex overflow-hidden relative'>
+        <div className="min-h-screen w-full flex overflow-hidden relative bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
             
             {/* Custom Animation Styles */}
             <style>{`
@@ -50,97 +50,117 @@ export default function MyGroups() {
                     to { opacity: 1; transform: translateX(0); }
                 }
                 @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(10px); }
+                    from { opacity: 0; transform: translateY(12px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
-                .animate-slide-in-right { animation: slideInRight 0.3s ease-out forwards; }
-                .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+                .animate-slide-in-right { animation: slideInRight 0.4s ease-out forwards; }
+                .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+                .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
             `}</style>
 
             {/* =======================================================
                LEFT SIDE: GROUP LIST
                - Hidden on mobile IF a group is selected
-               - Takes 1/3 width on desktop
+               - Fixed width on desktop
             ======================================================== */}
             <div className={`
-                flex flex-col w-full md:w-1/3 lg:w-1/4 border-r border-border bg-surface h-full z-10
+                flex flex-col w-full md:w-[380px] lg:w-[400px] border-r border-gray-200 bg-white h-screen shrink-0 z-10
                 ${selectedGroupId ? 'hidden md:flex' : 'flex'}
             `}>
                 {/* Header */}
-                <div className="flex justify-between pt-4 px-4 border-b border-border bg-surface sticky top-0 z-20">
-                    <button 
-                        onClick={() => navigate('/')} 
-                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors hover:cursor-pointer"
-                    >
-                        <ArrowLeft size={16} /> <span className="ml-2">Back to Dashboard</span>
-                    </button>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold text-content">Chats</h2>
+                <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+                    <div className="flex justify-between items-center">
+                        <button 
+                            onClick={() => navigate('/')} 
+                            className="text-gray-400 hover:text-blue-500 transition-colors cursor-pointer"
+                        >
+                            <ArrowLeft size={16} />
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <h2 className="text-xs font-bold tracking-widest text-gray-500 uppercase">Your Groups</h2>
+                            <span className="text-xs font-semibold bg-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full">
+                                {groups.length}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* List Container */}
                 <div className="flex-1 overflow-y-auto">
                     {loading && (
-                        <div className="flex flex-col items-center justify-center p-8 space-y-4">
+                        <div className="flex flex-col items-center justify-center p-8 space-y-3">
                              {[1,2,3].map(i => (
-                                 <div key={i} className="w-full h-16 bg-gray-100 animate-pulse rounded-lg"/>
+                                 <div key={i} className="w-full h-16 bg-gray-50 animate-pulse rounded-lg"/>
                              ))}
                         </div>
                     )}
 
+                    {error && <p className="text-center text-red-500 text-sm px-4 py-3">{error}</p>}
+
                     {!loading && groups.length === 0 && (
-                        <div className="text-center p-8 text-muted">
-                            <Users size={48} className="mx-auto mb-2 opacity-20" />
-                            <p>You are not part of any groups.</p>
+                        <div className="text-center p-8 text-gray-400">
+                            <Users className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                            <p className="text-sm">You are not part of any groups.</p>
                         </div>
                     )}
 
-                    <ul className="divide-y divide-border">
-                        {groups.map((group, index) => {
-                            // Mocking "Last message" data if your API doesn't provide it yet
-                            // Ideally, your GET /groups/my-groups should return the last message
-                            const isSelected = selectedGroupId === group._id;
-                            
-                            return (
-                                <li
-                                    key={group._id}
-                                    onClick={() => handleGroupSelect(group._id)}
-                                    style={{ animationDelay: `${index * 50}ms` }}
-                                    className={`
-                                        w-full p-4 cursor-pointer transition-all duration-200 animate-slide-up hover:bg-gray-50
-                                        ${isSelected ? 'bg-primary/5 border-l-4 border-primary' : 'border-l-4 border-transparent'}
-                                    `}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        {/* Avatar */}
-                                        <div className={`
-                                            w-12 h-12 rounded-full flex items-center justify-center shrink-0 text-lg font-bold
-                                            ${isSelected ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}
-                                        `}>
-                                            {group.name.charAt(0).toUpperCase()}
-                                        </div>
+                    {groups.map((group, index) => {
+                        const isActive = selectedGroupId === group._id;
+                        
+                        return (
+                            <div
+                                key={group._id}
+                                onClick={() => handleGroupSelect(group._id)}
+                                style={{ animationDelay: `${index * 40}ms` }}
+                                className={`
+                                    group cursor-pointer flex items-center gap-3 px-5 py-4 border-b border-gray-50 
+                                    transition-all duration-200 animate-slide-up
+                                    ${isActive 
+                                        ? 'bg-blue-50/80 border-l-4 border-l-blue-500' 
+                                        : 'border-l-4 border-l-transparent hover:bg-gray-50/80'}
+                                `}
+                            >
+                                {/* Group Avatar */}
+                                <div className={`
+                                    w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold
+                                    transition-colors duration-200
+                                    ${isActive 
+                                        ? 'bg-blue-500 text-white' 
+                                        : 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-500'}
+                                `}>
+                                    {group.name.charAt(0).toUpperCase()}
+                                </div>
 
-                                        {/* Info */}
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex justify-between items-baseline mb-1">
-                                                <h3 className={`font-semibold truncate ${isSelected ? 'text-primary' : 'text-gray-800'}`}>
-                                                    {group.name}
-                                                </h3>
-                                                {/* Timestamp Placeholder */}
-                                                <span className="text-xs text-muted">
-                                                    {new Date(group.createdAt).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
-                                                </span>
-                                            </div>
-                                            <p className="text-sm text-muted truncate">
-                                                {group.members?.length} members • Tap to chat
-                                            </p>
-                                        </div>
+                                {/* Group Info */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-baseline">
+                                        <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-black-900' : 'text-gray-700'}`}>
+                                            {group.name}
+                                        </h3>
+                                        <span className="text-[11px] text-gray-400 ml-2 shrink-0">
+                                            {new Date(group.createdAt).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
+                                        </span>
                                     </div>
-                                </li>
-                            );
-                        })}
-                    </ul>
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                        <MessageCircle size={11} className="text-gray-300" />
+                                        <p className="text-xs text-gray-400 truncate">
+                                            {group.members?.length} members · Tap to chat
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Chevron */}
+                                <ChevronRight size={18} className={`
+                                    shrink-0 transition-colors duration-200
+                                    ${isActive ? 'text-blue-500' : 'text-gray-300 group-hover:text-gray-400'}
+                                `} />
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -150,8 +170,8 @@ export default function MyGroups() {
                - Mobile: Covers screen when group selected
             ======================================================== */}
             <div className={`
-                bg-white h-full overflow-hidden relative
-                ${selectedGroupId ? 'flex fixed w-full inset-0 z-50 md:static md:w-2/3 lg:w-3/4' : 'hidden md:flex md:w-2/3 lg:w-3/4 items-center justify-center'}
+                h-screen overflow-hidden relative flex-1
+                ${selectedGroupId ? 'flex fixed w-full inset-0 z-50 md:static bg-white' : 'hidden md:flex items-center justify-center bg-transparent'}
             `}>
                 {selectedGroupId ? (
                     // This wrapper ensures the animation plays when the ID changes
@@ -163,12 +183,12 @@ export default function MyGroups() {
                     </div>
                 ) : (
                     // Empty State
-                    <div className="text-center p-10 animate-fade-in opacity-50 flex flex-col items-center">
-                        <div className="p-6 bg-gray-100 rounded-full mb-4">
-                            <Users size={48} className="text-gray-400" />
+                    <div className="text-center p-10 animate-fade-in">
+                        <div className="inline-block p-6 bg-white/60 backdrop-blur-sm rounded-full mb-4 shadow-sm">
+                            <Users className="w-8 h-8 text-gray-300" />
                         </div>
-                        <h3 className="text-xl font-medium text-gray-800">Your Groups</h3>
-                        <p className="text-gray-500 mt-2">Select a group to start chatting and tracking rides.</p>
+                        <h3 className="text-lg font-medium text-gray-500">Select a group</h3>
+                        <p className="text-sm text-gray-400 mt-1">Click on a group from the left to start chatting</p>
                     </div>
                 )}
             </div>
