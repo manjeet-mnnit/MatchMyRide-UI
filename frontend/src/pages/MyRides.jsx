@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { ArrowLeftIcon, MapPinIcon, CarIcon } from 'lucide-react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { ArrowLeftIcon, CarIcon } from 'lucide-react'
 import Navigation from '../components/Navigation'
 import RideMatches from '../components/RideMatches'
 import axios from '../api/axiosInstance'
@@ -10,12 +10,21 @@ export default function MyRides() {
     const [loading, setLoading] = useState(true)
     const [message, setMessage] = useState('')
     
-    // UI State
-    const [selectedRide, setSelectedRide] = useState(null)
+    const [selectedRideId, setSelectedRideId] = useState(null)
     const [rideGroup, setRideGroup] = useState(null)
+    const [groupLoading, setGroupLoading] = useState(false)
     
     const navigate = useNavigate()
+    const location = useLocation()
 
+    // Handle initial selection from navigation state (like MyGroups does)
+    useEffect(() => {
+        if (location.state?.rideId) {
+            setSelectedRideId(location.state.rideId)
+        }
+    }, [location.state])
+
+    // Fetch rides list
     useEffect(() => {
         const fetchRides = async () => {
             try {
@@ -30,32 +39,63 @@ export default function MyRides() {
         fetchRides()
     }, [])
 
+    // Derive the selected ride object from the rides array
+    const selectedRide = rides.find(r => r._id === selectedRideId) || null
+
+    // Fetch ride group whenever selectedRideId changes
+    // Clear rideGroup synchronously to prevent stale data
     useEffect(() => {
-        const fetchRideGroup = async () => {
-            if (selectedRide?.status === 'Matched') {
-                try {
-                    const res = await axios.get(`/rides/group/${selectedRide._id}`);
-                    setRideGroup(res.data?.group || null);
+        // Always reset group immediately on any selection change
+        setRideGroup(null)
+        setGroupLoading(false)
+
+        if (!selectedRideId) return
+
+        // We need the ride object to check status — but rides might not be loaded yet.
+        // Find it from the current rides array.
+        const ride = rides.find(r => r._id === selectedRideId)
+        if (!ride || ride.status !== 'Matched') return
+
+        let cancelled = false
+        setGroupLoading(true)
+
+        const fetchGroup = async () => {
+            try {
+                const res = await axios.get(`/rides/group/${selectedRideId}`)
+                if (!cancelled) {
+                    setRideGroup(res.data?.group || null)
                 }
-                catch (err) {
-                    console.error('Failed to fetch ride group:', err);
-                    setMessage('Could not fetch ride group details');
-                    setRideGroup(null);
+            } catch (err) {
+                console.error('Failed to fetch ride group:', err)
+                if (!cancelled) {
+                    setMessage('Could not fetch ride group details')
+                    setRideGroup(null)
                 }
-            } else {
-                setRideGroup(null);
+            } finally {
+                if (!cancelled) {
+                    setGroupLoading(false)
+                }
             }
         }
-        fetchRideGroup();
-    }, [selectedRide]);
+        fetchGroup()
 
-    // Handler for the Action Button (moved from the list to the detail view)
+        // Cleanup: if the user switches rides before this fetch finishes,
+        // ignore the stale response
+        return () => { cancelled = true }
+    }, [selectedRideId, rides])
+
+    // Selection handler
+    const handleRideSelect = (rideId) => {
+        setSelectedRideId(rideId)
+    }
+
+    // Handler for the Action Button
     const handleRideAction = async (ride) => {
         if (ride.status === 'Matched') {
-            const res = await axios.get(`/rides/group/${ride._id}`);
-            navigate(`/navigation`, { state: { groupId: res.data?.group?._id, group: res.data?.group } });
+            const res = await axios.get(`/rides/group/${ride._id}`)
+            navigate(`/navigation`, { state: { groupId: res.data?.group?._id, group: res.data?.group } })
         } else {
-            navigate('/ride-matches', { state: { rideId: ride._id } });
+            navigate('/ride-matches', { state: { rideId: ride._id } })
         }
     }
 
@@ -88,7 +128,7 @@ export default function MyRides() {
             ======================================================== */}
             <div className={`
                 flex flex-col w-full md:w-1/3 lg:w-1/4 border-r border-border bg-surface h-full z-10
-                ${selectedRide ? 'hidden md:flex' : 'flex'}
+                ${selectedRideId ? 'hidden md:flex' : 'flex'}
             `}>
                 {/* Header */}
                 <div className="p-6 border-b border-border bg-surface sticky top-0 z-20">
@@ -116,11 +156,11 @@ export default function MyRides() {
                     {rides.map((ride, index) => (
                         <div
                             key={ride._id}
-                            onClick={() => setSelectedRide(ride)}
-                            style={{ animationDelay: `${index * 50}ms` }} // Staggered animation
+                            onClick={() => handleRideSelect(ride._id)}
+                            style={{ animationDelay: `${index * 50}ms` }}
                             className={`
                                 cursor-pointer rounded-xl p-4 border transition-all duration-200 animate-slide-up
-                                ${selectedRide?._id === ride._id 
+                                ${selectedRideId === ride._id 
                                     ? 'bg-primary/10 border-primary shadow-md' 
                                     : 'bg-surface shadow-sd border-transparent hover:shadow-lg hover:border-border'}
                             `}
@@ -142,22 +182,22 @@ export default function MyRides() {
                RIGHT SIDE: DETAIL VIEW
                - Hidden on mobile IF NO ride selected
                - Takes 2/3 width on desktop
-               - Uses 'key' to force animation on change
+               - Uses 'key' on selectedRideId to force remount on change
             ======================================================== */}
             <div className={`
                 flex-col bg-background h-full overflow-y-auto
-                ${selectedRide ? 'flex fixed inset-0 z-50 md:static md:w-2/3 lg:w-3/4' : 'hidden md:flex md:w-2/3 lg:w-3/4 items-center justify-center'}
+                ${selectedRideId ? 'flex fixed inset-0 z-50 md:static md:w-2/3 lg:w-3/4' : 'hidden md:flex md:w-2/3 lg:w-3/4 items-center justify-center'}
             `}>
                 
-                {selectedRide ? (
+                {selectedRideId && selectedRide ? (
                     <div 
-                        key={selectedRide._id} // CRITICAL: This forces the animation to replay when ID changes
+                        key={selectedRideId}
                         className="flex flex-col h-full w-full animate-slide-in-right bg-background"
                     >
                         {/* Mobile Only Header */}
                         <div className="md:hidden p-4 border-b border-border bg-surface flex items-center shadow-sm">
                             <button 
-                                onClick={() => setSelectedRide(null)}
+                                onClick={() => setSelectedRideId(null)}
                                 className="p-2 hover:bg-gray-100 rounded-full mr-2"
                             >
                                 <ArrowLeftIcon />
@@ -165,13 +205,36 @@ export default function MyRides() {
                             <span className="font-semibold text-lg">Ride Details</span>
                         </div>
 
-                        {selectedRide.status === 'Matched' && rideGroup && (
-                            <Navigation groupId={rideGroup._id} initialGroup={rideGroup} />
+                        {/* Matched ride → show Navigation (only when group is loaded) */}
+                        {selectedRide.status === 'Matched' && (
+                            groupLoading ? (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <div className="text-center">
+                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+                                        <p className="mt-4 text-muted text-sm">Loading ride group...</p>
+                                    </div>
+                                </div>
+                            ) : rideGroup ? (
+                                <Navigation groupId={rideGroup._id} initialGroup={rideGroup} />
+                            ) : (
+                                <div className="flex-1 flex items-center justify-center">
+                                    <p className="text-muted text-sm">Could not load group details.</p>
+                                </div>
+                            )
                         )}
 
+                        {/* Unmatched ride → show RideMatches */}
                         {selectedRide.status !== 'Matched' && (
                             <RideMatches rideId={selectedRide._id} />
                         )}
+                    </div>
+                ) : selectedRideId && !selectedRide ? (
+                    /* Ride ID set (from location.state) but rides not loaded yet */
+                    <div className="flex-1 flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
+                            <p className="mt-4 text-muted text-sm">Loading ride...</p>
+                        </div>
                     </div>
                 ) : (
                     /* Empty State (Desktop Only) */
