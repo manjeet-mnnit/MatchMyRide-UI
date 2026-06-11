@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeftIcon, CarIcon } from 'lucide-react'
+import { ArrowLeftIcon, CarIcon, MapPin, ChevronRight, Clock } from 'lucide-react'
 import Navigation from '../components/Navigation'
 import RideMatches from '../components/RideMatches'
 import axios from '../api/axiosInstance'
@@ -89,18 +89,31 @@ export default function MyRides() {
         setSelectedRideId(rideId)
     }
 
-    // Handler for the Action Button
-    const handleRideAction = async (ride) => {
-        if (ride.status === 'Matched') {
-            const res = await axios.get(`/rides/group/${ride._id}`)
-            navigate(`/navigation`, { state: { groupId: res.data?.group?._id, group: res.data?.group } })
-        } else {
-            navigate('/ride-matches', { state: { rideId: ride._id } })
+    // Helper to format ride date/time for the sidebar
+    const formatRideDateTime = (dateStr) => {
+        const date = new Date(dateStr)
+        const now = new Date()
+        const diffDays = Math.floor((date - now) / (1000 * 60 * 60 * 24))
+        
+        let dayLabel
+        if (diffDays === 0) dayLabel = 'Today'
+        else if (diffDays === 1) dayLabel = 'Tomorrow'
+        else {
+            dayLabel = date.toLocaleDateString(undefined, { weekday: 'short' })
         }
+        
+        const time = date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
+        return `${dayLabel} · ${time}`
+    }
+
+    // Helper to truncate address for sidebar
+    const truncateAddress = (addr, maxLen = 32) => {
+        if (!addr) return ''
+        return addr.length > maxLen ? addr.slice(0, maxLen) + '...' : addr
     }
 
     return (
-        <div className='bg-background h-screen w-full flex overflow-hidden relative'>
+        <div className="min-h-screen w-full flex overflow-hidden relative bg-gradient-to-br from-blue-50 via-slate-50 to-blue-100">
             
             {/* INJECT CUSTOM ANIMATION STYLES */}
             <style>{`
@@ -109,7 +122,7 @@ export default function MyRides() {
                     to { opacity: 1; transform: translateX(0); }
                 }
                 @keyframes slideUp {
-                    from { opacity: 0; transform: translateY(20px); }
+                    from { opacity: 0; transform: translateY(12px); }
                     to { opacity: 1; transform: translateY(0); }
                 }
                 @keyframes fadeIn {
@@ -122,89 +135,127 @@ export default function MyRides() {
             `}</style>
 
             {/* =======================================================
-               LEFT SIDE: LIST VIEW
+               LEFT SIDE: RIDE LIST PANEL
                - Hidden on mobile IF a ride is selected
-               - Takes 1/3 width on desktop
+               - Takes fixed width on desktop
             ======================================================== */}
             <div className={`
-                flex flex-col w-full md:w-1/3 lg:w-1/4 border-r border-border bg-surface h-full z-10
+                flex flex-col w-full md:w-[380px] lg:w-[400px] border-r border-gray-200 bg-white h-screen shrink-0 z-10
                 ${selectedRideId ? 'hidden md:flex' : 'flex'}
             `}>
                 {/* Header */}
-                <div className="flex justify-between pt-4 px-4 border-b border-border bg-surface sticky top-0 z-20">
-                    <button 
-                        onClick={() => navigate('/')} 
-                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors hover:cursor-pointer"
-                    >
-                        <ArrowLeftIcon size={16} /> <span className="ml-2">Back to Dashboard</span>
-                    </button>
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-2xl font-bold text-content">Rides</h2>
+                <div className="px-5 pt-5 pb-4 border-b border-gray-100">
+                    
+                    <div className="flex justify-between items-center">
+                        <button 
+                            onClick={() => navigate('/')} 
+                            className="hover:text-primary transition-colors hover:cursor-pointer"
+                        >
+                            <ArrowLeftIcon size={16} />
+                        </button>
+                        <div className="flex justify-between items-center gap-2">
+                            <h2 className="text-xs font-bold tracking-widest text-gray-500 uppercase">Your Rides</h2>
+                            <span className="text-xs font-semibold bg-blue-100 text-blue-600 px-2.5 py-0.5 rounded-full">
+                                {rides.length}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Scrollable List */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    {loading && <p className="text-center text-muted animate-pulse">Loading rides...</p>}
+                <div className="flex-1 overflow-y-auto">
+                    {loading && <p className="text-center text-gray-400 animate-pulse py-8">Loading rides...</p>}
                     
-                    {message && <p className="text-center text-error mb-4">{message}</p>}
+                    {message && <p className="text-center text-red-500 text-sm px-4 py-3">{message}</p>}
                     
                     {!loading && rides.length === 0 && (
-                        <div className="text-center p-8 text-muted border-2 border-dashed rounded-xl">
-                            <p>No rides created yet.</p>
+                        <div className="text-center p-8 text-gray-400">
+                            <CarIcon className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                            <p className="text-sm">No rides created yet.</p>
                         </div>
                     )}
 
-                    {rides.map((ride, index) => (
-                        <div
-                            key={ride._id}
-                            onClick={() => handleRideSelect(ride._id)}
-                            style={{ animationDelay: `${index * 50}ms` }}
-                            className={`
-                                cursor-pointer rounded-xl p-4 border transition-all duration-200 animate-slide-up
-                                ${selectedRideId === ride._id 
-                                    ? 'bg-primary/10 border-primary shadow-md' 
-                                    : 'bg-surface shadow-sd border-transparent hover:shadow-lg hover:border-border'}
-                            `}
-                        >
-                            <div className="flex justify-between items-start mb-2">
-                                <span className={`text-xs px-2 py-1 rounded-full ${ride.status === 'Matched' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                    {ride.status || 'Pending'}
-                                </span>
-                                <span className="text-xs text-muted">{new Date(ride.datetime).toLocaleDateString()}</span>
+                    {rides.map((ride, index) => {
+                        const isActive = selectedRideId === ride._id
+                        return (
+                            <div
+                                key={ride._id}
+                                onClick={() => handleRideSelect(ride._id)}
+                                style={{ animationDelay: `${index * 40}ms` }}
+                                className={`
+                                    group cursor-pointer flex items-center gap-3 px-5 py-4 border-b border-gray-50 
+                                    transition-all duration-200 animate-slide-up
+                                    ${isActive 
+                                        ? 'bg-blue-50/80 border-l-4 border-l-blue-500' 
+                                        : 'border-l-4 border-l-transparent hover:bg-gray-50/80'}
+                                `}
+                            >
+                                {/* Location Icon */}
+                                <div className={`
+                                    w-9 h-9 rounded-full flex items-center justify-center shrink-0
+                                    ${isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-500'}
+                                    transition-colors duration-200
+                                `}>
+                                    <MapPin size={16} />
+                                </div>
+
+                                {/* Ride Info */}
+                                <div className="flex-1 min-w-0">
+                                    <p className={`text-sm font-semibold truncate ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>
+                                        {truncateAddress(ride.destination)}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="flex items-center gap-1 text-xs text-gray-400">
+                                            <Clock size={11} />
+                                            {formatRideDateTime(ride.datetime)}
+                                        </span>
+                                        <span className={`
+                                            text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide
+                                            ${ride.status === 'Matched' 
+                                                ? 'bg-green-100 text-green-600' 
+                                                : 'bg-orange-100 text-orange-600'}
+                                        `}>
+                                            {ride.status || 'Open'}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Chevron */}
+                                <ChevronRight size={18} className={`
+                                    shrink-0 transition-colors duration-200
+                                    ${isActive ? 'text-blue-500' : 'text-gray-300 group-hover:text-gray-400'}
+                                `} />
                             </div>
-                            <h3 className="font-semibold text-content truncate">{ride.destination}</h3>
-                            <p className="text-sm text-muted truncate">From: {ride.source}</p>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
             </div>
 
             {/* =======================================================
                RIGHT SIDE: DETAIL VIEW
                - Hidden on mobile IF NO ride selected
-               - Takes 2/3 width on desktop
+               - Takes remaining width on desktop
                - Uses 'key' on selectedRideId to force remount on change
             ======================================================== */}
             <div className={`
-                flex-col bg-background h-full overflow-y-auto
-                ${selectedRideId ? 'flex fixed inset-0 z-50 md:static md:w-2/3 lg:w-3/4' : 'hidden md:flex md:w-2/3 lg:w-3/4 items-center justify-center'}
+                flex-col h-screen overflow-y-auto flex-1
+                ${selectedRideId ? 'flex fixed inset-0 z-50 md:static bg-white' : 'hidden md:flex items-center justify-center bg-transparent'}
             `}>
                 
                 {selectedRideId && selectedRide ? (
                     <div 
                         key={selectedRideId}
-                        className="flex flex-col h-full w-full animate-slide-in-right bg-background"
+                        className="flex flex-col h-full w-full animate-slide-in-right bg-white"
                     >
                         {/* Mobile Only Header */}
-                        <div className="md:hidden p-4 border-b border-border bg-surface flex items-center shadow-sm">
+                        <div className="md:hidden p-4 border-b border-gray-100 bg-white flex items-center shadow-sm">
                             <button 
                                 onClick={() => setSelectedRideId(null)}
-                                className="p-1 hover:bg-gray-100 rounded-full mr-2"
+                                className="p-1.5 hover:bg-gray-100 rounded-full mr-2 transition-colors"
                             >
-                                <ArrowLeftIcon />
+                                <ArrowLeftIcon size={20} />
                             </button>
-                            <span className="text-lg">Ride Details</span>
+                            <span className="text-base font-semibold text-gray-800">Ride Details</span>
                         </div>
 
                         {/* Matched ride → show Navigation (only when group is loaded) */}
@@ -212,15 +263,15 @@ export default function MyRides() {
                             groupLoading ? (
                                 <div className="flex-1 flex items-center justify-center">
                                     <div className="text-center">
-                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
-                                        <p className="mt-4 text-muted text-sm">Loading ride group...</p>
+                                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto"></div>
+                                        <p className="mt-4 text-gray-400 text-sm">Loading ride group...</p>
                                     </div>
                                 </div>
                             ) : rideGroup ? (
                                 <Navigation groupId={rideGroup._id} initialGroup={rideGroup} />
                             ) : (
                                 <div className="flex-1 flex items-center justify-center">
-                                    <p className="text-muted text-sm">Could not load group details.</p>
+                                    <p className="text-gray-400 text-sm">Could not load group details.</p>
                                 </div>
                             )
                         )}
@@ -234,18 +285,18 @@ export default function MyRides() {
                     /* Ride ID set (from location.state) but rides not loaded yet */
                     <div className="flex-1 flex items-center justify-center">
                         <div className="text-center">
-                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto"></div>
-                            <p className="mt-4 text-muted text-sm">Loading ride...</p>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mx-auto"></div>
+                            <p className="mt-4 text-gray-400 text-sm">Loading ride...</p>
                         </div>
                     </div>
                 ) : (
                     /* Empty State (Desktop Only) */
-                    <div className="text-center p-10 animate-fade-in opacity-50">
-                        <div className="inline-block p-6 bg-surface rounded-full mb-4">
-                            <CarIcon />
+                    <div className="text-center p-10 animate-fade-in">
+                        <div className="inline-block p-6 bg-white/60 backdrop-blur-sm rounded-full mb-4 shadow-sm">
+                            <CarIcon className="w-8 h-8 text-gray-300" />
                         </div>
-                        <h3 className="text-xl font-medium text-content">Select a ride</h3>
-                        <p className="text-muted">Click on a ride from the left to view details</p>
+                        <h3 className="text-lg font-medium text-gray-500">Select a ride</h3>
+                        <p className="text-sm text-gray-400 mt-1">Click on a ride from the left to view details</p>
                     </div>
                 )}
             </div>

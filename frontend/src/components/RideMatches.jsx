@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { 
-    User, Phone, MapPin, Clock, 
+    Phone, MapPin, Clock, 
     CheckCircle2, Circle, Users 
 } from 'lucide-react'
 import axios from '../api/axiosInstance'
@@ -76,135 +76,142 @@ export default function RideMatches({ rideId }) {
     // Helper to format date
     const formatDate = (dateStr) => {
         const date = new Date(dateStr);
-        return {
-            date: date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-            time: date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-        };
+        return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) 
+            + ' at ' 
+            + date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
     }
 
     return (
-        <div className="flex flex-col h-full bg-background relative overflow-hidden">
+        <div className="flex flex-col h-full bg-white relative overflow-hidden">
             
+            {/* INJECT ANIMATION STYLES */}
+            <style>{`
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(12px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-slide-up { animation: slideUp 0.4s ease-out forwards; }
+            `}</style>
+
             {/* 1. Header Section */}
-            <div className="hidden md:block p-4 border-b border-border bg-surface shrink-0">
-                <div className="flex justify-between items-end pt-1">
-                    <div>
-                        <h2 className="text-xl font-bold text-content flex items-center gap-2">
-                            <Users className="w-6 h-6 text-primary" />
-                            Potential Matches
-                        </h2>
-                    </div>
-                    <div className="text-sm font-medium bg-secondary/50 px-3 py-1 rounded-full text-secondary-fg">
-                        {matches.length} Found
-                    </div>
+            <div className="hidden md:block px-6 pt-5 pb-4 border-b border-gray-100 shrink-0">
+                <div className="flex justify-between items-center pt-1">
+                    <h2 className="text-xs font-bold tracking-widest text-green-700 uppercase">
+                        Potential Matches
+                    </h2>
+                    <span className="text-xs font-medium text-gray-400">
+                        <span className="text-green-600 font-semibold">{matches.length}</span> found
+                    </span>
                 </div>
-                {message && <p className="text-error mt-2 text-sm bg-error/10 p-2 rounded">{message}</p>}
+                {message && <p className="text-red-500 mt-2 text-sm bg-red-50 p-2 rounded-lg">{message}</p>}
             </div>
 
-            {/* 2. Scrollable List Section */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-8 space-y-4">
+            {/* 2. Scrollable Match Cards */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
                 {loading && (
-                    <div className="flex flex-col items-center justify-center h-40 text-muted space-y-2">
-                        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin"></div>
-                        <p>Finding compatible rides...</p>
+                    <div className="flex flex-col items-center justify-center h-40 text-gray-400 space-y-3">
+                        <div className="w-8 h-8 border-3 border-blue-200 border-t-blue-500 rounded-full animate-spin"></div>
+                        <p className="text-sm">Finding compatible rides...</p>
                     </div>
                 )}
 
                 {!loading && matches.length === 0 && (
-                    <div className="text-center py-12 px-4 border-2 border-dashed border-border rounded-xl bg-surface/50">
-                        <Users className="w-12 h-12 mx-auto text-muted mb-3" />
-                        <h3 className="font-semibold text-lg text-content">No matches yet</h3>
-                        <p className="text-muted text-sm max-w-xs mx-auto">
+                    <div className="text-center py-16 px-4">
+                        <Users className="w-12 h-12 mx-auto text-gray-200 mb-4" />
+                        <h3 className="font-semibold text-base text-gray-600">No matches yet</h3>
+                        <p className="text-gray-400 text-sm max-w-xs mx-auto mt-1">
                             We couldn't find anyone with a similar route and time right now. Check back later!
                         </p>
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    {matches.map((ride, index) => {
-                        const isSelected = selected.includes(ride.user._id);
-                        const { date, time } = formatDate(ride.datetime);
-                        
-                        return (
-                            <div
-                                key={ride._id}
-                                onClick={() => toggleSelection(ride.user._id)}
-                                style={{ animationDelay: `${index * 50}ms` }}
-                                className={`
-                                    group relative p-5 rounded-xl border cursor-pointer transition-all duration-200 animate-slide-up
-                                    flex flex-col justify-between
-                                    ${isSelected 
-                                        ? 'bg-primary/5 border-primary shadow-md ring-1 ring-primary' 
-                                        : 'bg-surface border-border hover:border-primary/50 hover:shadow-md'}
-                                `}
-                            >
-                                {/* Selection Indicator (Top Right) */}
-                                <div className={`absolute top-4 right-4 transition-colors ${isSelected ? 'text-primary' : 'text-muted/30 group-hover:text-primary/50'}`}>
-                                    {isSelected ? <CheckCircle2 size={24} fill="blue" className="text-primary-fg" /> : <Circle size={24} />}
+                {matches.map((ride, index) => {
+                    const isSelected = selected.includes(ride.user._id);
+                    
+                    return (
+                        <div
+                            key={ride._id}
+                            onClick={() => toggleSelection(ride.user._id)}
+                            style={{ animationDelay: `${index * 60}ms` }}
+                            className={`
+                                group relative rounded-xl border cursor-pointer transition-all duration-200 animate-slide-up
+                                ${isSelected 
+                                    ? 'bg-blue-50/50 border-blue-200 shadow-md ring-1 ring-blue-300' 
+                                    : 'bg-white border-gray-100 hover:border-gray-200 hover:shadow-md shadow-sm'}
+                            `}
+                        >
+                            {/* User Info Row */}
+                            <div className="flex items-center gap-3 px-5 pt-4 pb-3 border-b border-gray-50">
+                                {/* Avatar */}
+                                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 ring-2 ring-gray-100">
+                                    <img 
+                                        src={ride.user.avatar} 
+                                        alt={`${ride.user.fullName}'s avatar`} 
+                                        className="w-full h-full object-cover" 
+                                    />
                                 </div>
-
-                                {/* User Info */}
-                                <div className="flex items-start gap-3 mb-4 pr-8">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold shrink-0 `}>
-                                        <img src={ride.user.avatar} alt={`${ride.user.fullName}'s avatar`} className="w-full h-full rounded-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-content leading-tight">
-                                            {ride.user.fullName}
-                                        </h4>
-                                        <div className="flex items-center text-xs text-muted mt-1 gap-1">
-                                            <Phone size={12} />
-                                            <span>Hidden</span>
-                                        </div>
+                                {/* Name & Phone */}
+                                <div className="flex-1 min-w-0">
+                                    <h4 className="font-semibold text-sm text-gray-800">
+                                        {ride.user.fullName}
+                                    </h4>
+                                    <div className="flex items-center text-xs text-gray-400 mt-0.5 gap-1">
+                                        <Phone size={11} />
+                                        <span>Hidden</span>
                                     </div>
                                 </div>
-
-                                {/* Route Info */}
-                                <div className="space-y-2 border-t border-dashed border-border pt-3 mt-auto">
-                                    <div className="flex items-start gap-2 text-sm text-content">
-                                        <MapPin size={16} className="text-muted shrink-0 mt-0.5" />
-                                        <div className="flex flex-col">
-                                            <span className="text-xs text-muted">Route</span>
-                                            <span className="font-medium truncate max-w-[200px] md:max-w-[400px]">{ride.source}</span>
-                                            <span className="font-medium truncate max-w-[200px] md:max-w-[400px]"> → {ride.destination}</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-content">
-                                        <Clock size={16} className="text-muted shrink-0" />
-                                        <span className="font-medium">{date} at {time}</span>
-                                    </div>
+                                {/* Selection Indicator */}
+                                <div className={`transition-colors ${isSelected ? 'text-blue-500' : 'text-gray-200 group-hover:text-gray-300'}`}>
+                                    {isSelected 
+                                        ? <CheckCircle2 size={22} className="fill-blue-500 text-white" /> 
+                                        : <Circle size={22} />
+                                    }
                                 </div>
                             </div>
-                        )
-                    })}
-                </div>
+
+                            {/* Route & Time Details */}
+                            <div className="px-5 py-3.5 space-y-2.5">
+                                {/* Route */}
+                                <div className="flex items-start gap-2.5">
+                                    <MapPin size={14} className="text-gray-300 shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-0.5">Route</p>
+                                        <p className="text-sm text-gray-600 leading-relaxed">
+                                            {ride.source} → {ride.destination}
+                                        </p>
+                                    </div>
+                                </div>
+                                {/* Time */}
+                                <div className="flex items-center gap-2.5">
+                                    <Clock size={14} className="text-gray-300 shrink-0" />
+                                    <p className="text-sm text-gray-500">
+                                        {formatDate(ride.datetime)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                })}
             </div>
 
             {/* 3. Sticky Action Footer */}
-            <div className="p-2 bg-surface md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 shrink-0">
+            <div className="px-4 py-3 bg-gray-50/80 backdrop-blur-sm border-t border-gray-100 z-10 shrink-0">
                 <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
-                    <div className="hidden md:block">
-                        <span className="text-sm font-medium text-muted">
-                            {selected.length}/{matches.length} Selected
-                        </span>
-                    </div>
+                    <span className="text-sm text-gray-400">
+                        <span className="font-semibold text-gray-600">{selected.length}</span>/{matches.length} Selected
+                    </span>
                     <button
                         onClick={handleCreateGroup}
                         disabled={selected.length === 0}
                         className={`
-                            flex-1 md:flex-none md:w-64 py-3 px-6 rounded-xl font-bold transition-all
+                            py-2.5 px-8 rounded-xl text-sm font-bold transition-all duration-200
                             flex items-center justify-center gap-2
                             ${selected.length > 0 
-                                ? 'bg-primary text-primary-fg hover:bg-primary/90 shadow-lg hover:shadow-primary/20 transform hover:-translate-y-0.5' 
-                                : 'bg-muted/30 text-muted-fg cursor-not-allowed'}
+                                ? 'bg-gray-800 text-white hover:bg-gray-900 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 cursor-pointer' 
+                                : 'bg-gray-200 text-gray-400 cursor-not-allowed'}
                         `}
                     >
-                        <span>Create Group</span>
-                        {selected.length > 0 && (
-                            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                                {selected.length}
-                            </span>
-                        )}
+                        Create Group
                     </button>
                 </div>
             </div>
