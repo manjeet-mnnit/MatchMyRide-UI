@@ -46,7 +46,7 @@ export default function Login() {
     return (
 		<div className="min-h-screen bg-gradient-to-br from-blue-50 via-gray-100 to-purple-100 flex items-center justify-center px-4">
 			<div className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-8">
-				<img src="../../public/logo.png" className='mx-auto h-12 w-auto mb-6'></img>
+				<img src="/logo.png" className='mx-auto h-12 w-auto mb-6'></img>
 				<h3 className='text-2xl text-left text-gray mt-8 font-semibold'>Welcome back!</h3>
 				<p className='text-md text-left text-gray-600 mb-8'>Sign in to plan your next ride</p>
 				{message && (
