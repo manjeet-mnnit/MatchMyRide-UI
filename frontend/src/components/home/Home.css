@@ -1,0 +1,529 @@
+/* ============================================
+   HOME PAGE — Component Styles
+   ============================================ */
+
+/* --- Animations --- */
+@keyframes homeSlideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes homeFadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.home-page {
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--background);
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 72px; /* space for bottom nav on mobile */
+}
+
+@media (min-width: 768px) {
+    .home-page {
+        padding-bottom: 0;
+    }
+}
+
+.home-page__body {
+    flex: 1;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.home-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+}
+
+.home-header-box {
+    max-width: 64rem;          
+    margin-left: auto;        
+    margin-right: auto;
+    padding-left: 1.25rem;    
+    padding-right: 1.25rem;
+    height: 3.5rem;            
+    display: flex;             
+    align-items: center;       
+    justify-content: space-between; 
+}
+
+@media (min-width: 640px) {
+    .home-header-box {
+        padding-left: 2rem;    /* sm:px-8 */
+        padding-right: 2rem;
+    }
+}
+
+.home-header__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.home-header__logo {
+    width: 26px;
+    height: 26px;
+    border-radius: 10px;
+    background: #1e293b;
+}
+
+.home-header__brand {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--content);
+    letter-spacing: -0.3px;
+}
+
+.home-header__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.home-header__logout {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.home-header__logout:hover {
+    background: rgba(239, 68, 68, 0.08);
+    color: var(--error);
+}
+
+.home-header__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-header__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.home-header__avatar-initials {
+    font-weight: 700;
+    font-size: 13px;
+    color: #475569;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================
+   GREETING BANNER
+   ============================================ */
+.greeting-banner {
+    padding: 28px 0 8px;
+    animation: homeFadeIn 0.5s ease-out;
+}
+
+.greeting-banner__label {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 400;
+}
+
+.greeting-banner__name {
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--content);
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+}
+
+/* ============================================
+   CREATE RIDE CARD
+   ============================================ */
+.create-ride-card {
+    margin-top: 20px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--surface);
+    animation: homeSlideUp 0.4s ease-out;
+}
+
+/* Desktop: horizontal layout */
+@media (min-width: 768px) {
+    .create-ride-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 24px 28px;
+    }
+}
+
+.create-ride-card__content {
+    margin-bottom: 18px;
+}
+
+@media (min-width: 768px) {
+    .create-ride-card__content {
+        margin-bottom: 0;
+    }
+}
+
+.create-ride-card__title {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--content);
+    margin-bottom: 4px;
+}
+
+.create-ride-card__subtitle {
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.create-ride-card__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 28px;
+    border: none;
+    border-radius: 12px;
+    background: #1e293b;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+
+.create-ride-card__btn:hover {
+    background: #0f172a;
+    box-shadow: 0 4px 16px rgba(30, 41, 59, 0.18);
+}
+
+.create-ride-card__btn:active {
+    transform: scale(0.98);
+}
+
+@media (min-width: 768px) {
+    .create-ride-card__btn {
+        width: auto;
+        min-width: 160px;
+    }
+}
+
+/* ============================================
+   SECTION HEADER (shared by Rides + Groups)
+   ============================================ */
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.section-header__title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.section-header__link {
+    border: none;
+    background: none;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.2s;
+}
+
+.section-header__link:hover {
+    color: var(--primary);
+}
+
+/* ============================================
+   CONTENT GRID (rides + groups side by side on desktop)
+   ============================================ */
+.home-content-grid {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+@media (min-width: 768px) {
+    .home-content-grid {
+        flex-direction: row;
+        gap: 32px;
+    }
+
+    .home-content-grid > * {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+/* ============================================
+   UPCOMING RIDES
+   ============================================ */
+.upcoming-rides__list {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+}
+
+.upcoming-rides__loading,
+.upcoming-rides__empty,
+.your-groups__loading,
+.your-groups__empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 28px 20px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* ============================================
+   RIDE ITEM
+   ============================================ */
+.ride-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+    animation: homeSlideUp 0.35s ease-out both;
+}
+
+.ride-item + .ride-item {
+    border-top: 1px solid var(--border);
+}
+
+.ride-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.ride-item__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ride-item__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ride-item__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--content);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ride-item__meta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.ride-item__badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 9999px;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ride-item__chevron {
+    color: var(--muted);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   YOUR GROUPS
+   ============================================ */
+.your-groups__list {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface);
+    overflow: hidden;
+}
+
+/* ============================================
+   GROUP ITEM
+   ============================================ */
+.group-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+    animation: homeSlideUp 0.35s ease-out both;
+}
+
+.group-item + .group-item {
+    border-top: 1px solid var(--border);
+}
+
+.group-item:hover {
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.group-item__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.group-item__info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.group-item__name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--content);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.group-item__meta {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.group-item__chevron {
+    color: var(--muted);
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* ============================================
+   BOTTOM NAV
+   ============================================ */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    height: 64px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+    .bottom-nav {
+        display: none;
+    }
+}
+
+.bottom-nav__tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.bottom-nav__tab:hover {
+    color: var(--content);
+}
+
+.bottom-nav__tab--active {
+    color: var(--primary);
+}
+
+/* ============================================
+   SPIN ANIMATION (for loaders using lucide)
+   ============================================ */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
