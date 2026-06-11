@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { 
     User, Phone, MapPin, Clock, 
     CheckCircle2, Circle, Users 
-} from 'lucide-react' // Assuming you have lucide-react installed
+} from 'lucide-react'
 import axios from '../api/axiosInstance'
 
 export default function RideMatches({ rideId }) {
@@ -21,7 +21,6 @@ export default function RideMatches({ rideId }) {
                     '/rides/matched-v2',
                     { rideId }
                 )
-                // console.log(res.data);
                 setMatches(res.data.rides)
             } catch (err) {
                 setMessage(err.response?.data?.message || 'Could not fetch matches')
@@ -87,16 +86,13 @@ export default function RideMatches({ rideId }) {
         <div className="flex flex-col h-full bg-background relative overflow-hidden">
             
             {/* 1. Header Section */}
-            <div className="hidden md:block p-6 md:p-7.5 border-b border-border bg-surface shrink-0">
-                <div className="flex justify-between items-end">
+            <div className="hidden md:block p-4 border-b border-border bg-surface shrink-0">
+                <div className="flex justify-between items-end pt-1">
                     <div>
-                        <h2 className="text-2xl font-bold text-content flex items-center gap-2">
+                        <h2 className="text-xl font-bold text-content flex items-center gap-2">
                             <Users className="w-6 h-6 text-primary" />
                             Potential Matches
                         </h2>
-                        <p className="text-muted mt-1">
-                            Select people to form a ride group.
-                        </p>
                     </div>
                     <div className="text-sm font-medium bg-secondary/50 px-3 py-1 rounded-full text-secondary-fg">
                         {matches.length} Found
@@ -185,7 +181,7 @@ export default function RideMatches({ rideId }) {
             </div>
 
             {/* 3. Sticky Action Footer */}
-            <div className="p-4 md:p-6 bg-surface border-t border-border shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 shrink-0">
+            <div className="p-2 bg-surface md:shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 shrink-0">
                 <div className="flex items-center justify-between gap-4 max-w-4xl mx-auto">
                     <div className="hidden md:block">
                         <span className="text-sm font-medium text-muted">

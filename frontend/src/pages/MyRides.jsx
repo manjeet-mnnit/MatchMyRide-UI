@@ -131,14 +131,16 @@ export default function MyRides() {
                 ${selectedRideId ? 'hidden md:flex' : 'flex'}
             `}>
                 {/* Header */}
-                <div className="p-6 border-b border-border bg-surface sticky top-0 z-20">
+                <div className="flex justify-between pt-4 px-4 border-b border-border bg-surface sticky top-0 z-20">
                     <button 
-                        onClick={() => navigate(-1)} 
-                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors"
+                        onClick={() => navigate('/')} 
+                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors hover:cursor-pointer"
                     >
-                        <ArrowLeftIcon /> <span className="ml-2">Back to Dashboard</span>
+                        <ArrowLeftIcon size={16} /> <span className="ml-2">Back to Dashboard</span>
                     </button>
-                    <h2 className="text-2xl font-bold text-content">My Rides</h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-bold text-content">Rides</h2>
+                    </div>
                 </div>
 
                 {/* Scrollable List */}
@@ -198,11 +200,11 @@ export default function MyRides() {
                         <div className="md:hidden p-4 border-b border-border bg-surface flex items-center shadow-sm">
                             <button 
                                 onClick={() => setSelectedRideId(null)}
-                                className="p-2 hover:bg-gray-100 rounded-full mr-2"
+                                className="p-1 hover:bg-gray-100 rounded-full mr-2"
                             >
                                 <ArrowLeftIcon />
                             </button>
-                            <span className="font-semibold text-lg">Ride Details</span>
+                            <span className="text-lg">Ride Details</span>
                         </div>
 
                         {/* Matched ride → show Navigation (only when group is loaded) */}

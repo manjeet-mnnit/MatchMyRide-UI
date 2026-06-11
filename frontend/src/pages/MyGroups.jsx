@@ -67,25 +67,15 @@ export default function MyGroups() {
                 ${selectedGroupId ? 'hidden md:flex' : 'flex'}
             `}>
                 {/* Header */}
-                <div className="p-4 border-b border-border bg-surface sticky top-0 z-20">
+                <div className="flex justify-between pt-4 px-4 border-b border-border bg-surface sticky top-0 z-20">
                     <button 
                         onClick={() => navigate('/')} 
-                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors"
+                        className="flex items-center text-sm text-muted hover:text-primary mb-4 transition-colors hover:cursor-pointer"
                     >
                         <ArrowLeft size={16} /> <span className="ml-2">Back to Dashboard</span>
                     </button>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-2xl font-bold text-content">Chats</h2>
-                    </div>
-                    
-                    {/* Search Bar Placeholder */}
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted h-4 w-4" />
-                        <input 
-                            type="text" 
-                            placeholder="Search groups..." 
-                            className="w-full bg-background border border-border rounded-lg pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                        />
                     </div>
                 </div>
 
