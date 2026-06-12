@@ -13,8 +13,6 @@ export default function ChatMessage({ message, currentUser, isLastInGroup }) {
     };
 
     const getDeliveryStatus = () => {
-        // Future: track delivery status
-        // For now, assume all messages are delivered
         if (message.failed) {
             return <AlertCircle size={14} className="text-red-400" />;
         }
@@ -24,25 +22,26 @@ export default function ChatMessage({ message, currentUser, isLastInGroup }) {
         if (message.delivered) {
             return <CheckCheck size={14} className="text-gray-400" />;
         }
-        if (message.sent) {
-            return <Check size={14} className="text-gray-400" />;
-        }
-        return <Check size={14} className="text-gray-300" />;
+        // Default: sent (single tick)
+        return <Check size={14} className="text-gray-400" />;
     };
 
     return (
-        <div className={`flex gap-3 mb-4 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'} ${isLastInGroup ? '' : 'mb-1'}`}>
-            {/* Profile Picture */}
+        <div className={`flex gap-2 items-start ${isLastInGroup ? 'mb-3' : 'mb-0.5'} ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+            {/* Small Avatar for received messages (WhatsApp-style) */}
             {!isOwnMessage && (
-                <div className={`flex-shrink-0 ${isLastInGroup ? '' : 'invisible'}`}>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                <div className={`flex-shrink-0 w-[26px] h-[26px] ${isLastInGroup ? 'visible' : 'invisible'}`}>
+                    <div className="w-[26px] h-[26px] rounded-full bg-gradient-to-br from-blue-400 to-purple-400 flex items-center justify-center text-white font-semibold text-[11px] overflow-hidden">
                         {message.sender?.avatar ? (
                             <img
-                                src={message.sender.avatar} alt={message.sender.fullName} className="w-full h-full rounded-full object-cover" />
-                            ) : (
-                                <>
-                                    {message.sender.fullName?.charAt(0).toUpperCase() || '?'}
-                                </> 
+                                src={message.sender.avatar} 
+                                alt={message.sender.fullName} 
+                                className="w-full h-full rounded-full object-cover"
+                            />
+                        ) : (
+                            <>
+                                {message.sender.fullName?.charAt(0).toUpperCase() || '?'}
+                            </> 
                         )}
                     </div>
                 </div>
@@ -52,31 +51,31 @@ export default function ChatMessage({ message, currentUser, isLastInGroup }) {
             <div className={`flex flex-col max-w-[70%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
                 {/* Sender Name (only for other's messages and first in group) */}
                 {!isOwnMessage && isLastInGroup && (
-                    <span className="text-xs text-gray-600 font-medium mb-1 px-1">
+                    <span className="text-[11px] text-gray-500 font-medium mb-0.5 pl-0.5">
                         {message.sender.fullName}
                     </span>
                 )}
 
                 {/* Message Content */}
                 <div
-                    className={`px-4 py-2 rounded-2xl shadow-sm ${
+                    className={`px-3 py-1.5 rounded-2xl shadow-sm ${
                         isOwnMessage
-                            ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-br-md'
-                            : 'bg-white text-gray-800 rounded-bl-md border border-gray-200'
+                            ? 'bg-slate-800 text-white rounded-br-md'
+                            : 'bg-gray-100 text-gray-800 rounded-bl-md'
                     }`}
                 >
-                    <p className="text-sm whitespace-pre-wrap break-words">
+                    <p className="text-sm whitespace-pre-wrap break-words m-0 leading-snug">
                         {message.content}
                     </p>
                 </div>
 
                 {/* Timestamp and Status */}
-                <div className={`flex items-center gap-1 mt-1 px-1 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}>
-                    <span className="text-xs text-gray-500">
+                <div className={`flex items-center gap-[3px] mt-0.5 px-0.5 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                    <span className="text-[11px] text-gray-400">
                         {formatTime(message.createdAt)}
                     </span>
                     {isOwnMessage && (
-                        <span className="flex items-center">
+                        <span className="flex items-center ml-[1px]">
                             {getDeliveryStatus()}
                         </span>
                     )}
@@ -85,7 +84,7 @@ export default function ChatMessage({ message, currentUser, isLastInGroup }) {
 
             {/* Spacer for own messages to maintain alignment */}
             {isOwnMessage && (
-                <div className="w-10 flex-shrink-0"></div>
+                <div className="w-[26px] flex-shrink-0"></div>
             )}
         </div>
     );
@@ -104,23 +103,25 @@ export function DateSeparator({ date }) {
         msgDate.setHours(0, 0, 0, 0);
 
         if (msgDate.getTime() === today.getTime()) {
-            return 'Today';
+            return 'TODAY';
         } else if (msgDate.getTime() === yesterday.getTime()) {
-            return 'Yesterday';
+            return 'YESTERDAY';
         } else {
             return msgDate.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric',
                 year: msgDate.getFullYear() !== today.getFullYear() ? 'numeric' : undefined
-            });
+            }).toUpperCase();
         }
     };
 
     return (
-        <div className="flex items-center justify-center my-4">
-            <div className="bg-gray-200 text-gray-600 text-xs px-3 py-1 rounded-full shadow-sm">
+        <div className="flex items-center justify-center my-4 gap-3">
+            <div className="flex-1 h-[1px] bg-gray-200"></div>
+            <span className="text-[11px] text-gray-400 font-medium tracking-wider">
                 {formatDate(date)}
-            </div>
+            </span>
+            <div className="flex-1 h-[1px] bg-gray-200"></div>
         </div>
     );
 }
@@ -140,7 +141,7 @@ export function TypingIndicator({ typingUsers }) {
 
     return (
         <div className="flex items-center gap-3 mb-4 px-4">
-            <div className="w-10 h-10 flex-shrink-0"></div>
+            <div className="w-7 flex-shrink-0"></div>
             <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-2xl">
                 <span className="text-sm text-gray-600">{getTypingText()}</span>
                 <div className="flex gap-1">

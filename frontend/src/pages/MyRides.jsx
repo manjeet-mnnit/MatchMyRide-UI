@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ArrowLeftIcon, CarIcon, MapPin, ChevronRight, Clock } from 'lucide-react'
+import { ArrowLeftIcon, CarIcon, MapPin, Clock } from 'lucide-react'
 import Navigation from '../components/Navigation'
 import RideMatches from '../components/RideMatches'
 import axios from '../api/axiosInstance'
@@ -183,34 +183,32 @@ export default function MyRides() {
                                 onClick={() => handleRideSelect(ride._id)}
                                 style={{ animationDelay: `${index * 40}ms` }}
                                 className={`
-                                    group cursor-pointer flex items-center gap-3 px-5 py-4 border-b border-gray-50 
+                                    group cursor-pointer flex items-center gap-3.5 px-4 py-3 mx-3 mb-2 rounded-xl
                                     transition-all duration-200 animate-slide-up
                                     ${isActive 
-                                        ? 'bg-blue-50/80 border-l-4 border-l-blue-500' 
-                                        : 'border-l-4 border-l-transparent hover:bg-gray-50/80'}
+                                        ? 'bg-slate-50 border border-slate-200 border-l-[3px] border-l-slate-800 shadow-sm' 
+                                        : 'border border-transparent hover:bg-gray-50/80'}
                                 `}
                             >
-                                {/* Location Icon */}
+                                {/* Location Icon - Rounded Square */}
                                 <div className={`
-                                    w-9 h-9 rounded-full flex items-center justify-center shrink-0
-                                    ${isActive ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-500'}
+                                    w-11 h-11 rounded-xl flex items-center justify-center shrink-0
                                     transition-colors duration-200
+                                    ${isActive 
+                                        ? 'bg-transparent text-gray-900' 
+                                        : 'bg-gray-50 text-gray-400 group-hover:text-gray-900'}
                                 `}>
-                                    <MapPin size={16} />
+                                    <MapPin size={20} />
                                 </div>
 
                                 {/* Ride Info */}
                                 <div className="flex-1 min-w-0">
-                                    <p className={`text-sm font-semibold truncate ${isActive ? 'text-gray-900' : 'text-gray-700'}`}>
-                                        {truncateAddress(ride.destination)}
-                                    </p>
-                                    <div className="flex items-center gap-2 mt-0.5">
-                                        <span className="flex items-center gap-1 text-xs text-gray-400">
-                                            <Clock size={11} />
-                                            {formatRideDateTime(ride.datetime)}
-                                        </span>
+                                    <div className="flex justify-between items-baseline">
+                                        <p className={`text-sm font-semibold truncate ${isActive ? 'text-gray-900' : 'text-gray-800'}`}>
+                                            {truncateAddress(ride.destination)}
+                                        </p>
                                         <span className={`
-                                            text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide
+                                            text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide ml-2 shrink-0
                                             ${ride.status === 'Matched' 
                                                 ? 'bg-green-100 text-green-600' 
                                                 : 'bg-orange-100 text-orange-600'}
@@ -218,13 +216,11 @@ export default function MyRides() {
                                             {ride.status || 'Open'}
                                         </span>
                                     </div>
+                                    <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                                        <Clock size={11} />
+                                        {formatRideDateTime(ride.datetime)}
+                                    </p>
                                 </div>
-
-                                {/* Chevron */}
-                                <ChevronRight size={18} className={`
-                                    shrink-0 transition-colors duration-200
-                                    ${isActive ? 'text-blue-500' : 'text-gray-300 group-hover:text-gray-400'}
-                                `} />
                             </div>
                         )
                     })}

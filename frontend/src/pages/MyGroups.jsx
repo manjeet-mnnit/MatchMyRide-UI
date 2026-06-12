@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../api/axiosInstance';
-import { Users, ArrowLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { Users, ArrowLeft } from 'lucide-react';
 import GroupChat from '../components/chat/GroupChat';
 
 export default function MyGroups() {
@@ -117,47 +117,38 @@ export default function MyGroups() {
                                 onClick={() => handleGroupSelect(group._id)}
                                 style={{ animationDelay: `${index * 40}ms` }}
                                 className={`
-                                    group cursor-pointer flex items-center gap-3 px-5 py-4 border-b border-gray-50 
+                                    group cursor-pointer flex items-center gap-3.5 px-4 py-3 mx-3 mb-2 rounded-xl
                                     transition-all duration-200 animate-slide-up
                                     ${isActive 
-                                        ? 'bg-blue-50/80 border-l-4 border-l-blue-500' 
-                                        : 'border-l-4 border-l-transparent hover:bg-gray-50/80'}
+                                        ? 'bg-slate-50 border border-slate-200 border-l-[3px] border-l-slate-800 shadow-sm' 
+                                        : 'border border-transparent hover:bg-gray-50/80'}
                                 `}
                             >
-                                {/* Group Avatar */}
+                                {/* Group Icon - Rounded Square */}
                                 <div className={`
-                                    w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-sm font-bold
+                                    w-11 h-11 rounded-xl flex items-center justify-center shrink-0
                                     transition-colors duration-200
                                     ${isActive 
-                                        ? 'bg-blue-500 text-white' 
-                                        : 'bg-gray-100 text-gray-400 group-hover:bg-blue-100 group-hover:text-blue-500'}
+                                        ? 'bg-transparent text-gray-900' 
+                                        : 'bg-gray-50 text-gray-400 group-hover:text-gray-900'}
                                 `}>
-                                    {group.name.charAt(0).toUpperCase()}
+                                    <Users size={20} />
                                 </div>
 
                                 {/* Group Info */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between items-baseline">
-                                        <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-black-900' : 'text-gray-700'}`}>
+                                        <h3 className={`text-sm font-semibold truncate ${isActive ? 'text-gray-900' : 'text-gray-800'}`}>
                                             {group.name}
                                         </h3>
                                         <span className="text-[11px] text-gray-400 ml-2 shrink-0">
                                             {new Date(group.createdAt).toLocaleDateString(undefined, {month:'short', day:'numeric'})}
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 mt-0.5">
-                                        <MessageCircle size={11} className="text-gray-300" />
-                                        <p className="text-xs text-gray-400 truncate">
-                                            {group.members?.length} members · Tap to chat
-                                        </p>
-                                    </div>
+                                    <p className="text-xs text-gray-400 mt-0.5">
+                                        {group.members?.length} member{group.members?.length !== 1 ? 's' : ''}
+                                    </p>
                                 </div>
-
-                                {/* Chevron */}
-                                <ChevronRight size={18} className={`
-                                    shrink-0 transition-colors duration-200
-                                    ${isActive ? 'text-blue-500' : 'text-gray-300 group-hover:text-gray-400'}
-                                `} />
                             </div>
                         );
                     })}
