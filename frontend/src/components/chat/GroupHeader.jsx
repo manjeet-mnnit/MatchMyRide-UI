@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MapPin, MoreVertical, Users, Clock, Crown, Timer, Navigation as NavIcon } from 'lucide-react';
+import { ArrowLeft, MapPin, MoreVertical, Users, Clock, Crown, Timer, Navigation as NavIcon, Info, LogOut } from 'lucide-react';
 
 export default function GroupHeader({ group, currentUser, onLeaveGroup, onReady, onStart, onShowGroupInfo, countdownEndTime, onBack }) {
     
@@ -151,19 +151,19 @@ export default function GroupHeader({ group, currentUser, onLeaveGroup, onReady,
                         {showOptionsMenu && (
                             <>
                                 <div className="fixed inset-0 z-40" onClick={() => setShowOptionsMenu(false)}></div>
-                                <div className="absolute right-0 top-full mt-2 w-56 bg-white text-gray-800 rounded-lg shadow-xl z-50 py-2 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-md z-50 py-1.5 border border-gray-100 animate-in fade-in zoom-in-95 duration-200">
                                     <button
                                         onClick={() => { setShowOptionsMenu(false); onShowGroupInfo?.(); }}
-                                        className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-2"
+                                        className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-2 text-sm"
                                     >
-                                        <Users size={16} className="text-gray-500"/> Group Details
+                                        <Info size={16} className="text-gray-900" /> <span className="text-gray-900">Group details</span>
                                     </button>
-                                    <div className="border-t my-1"></div>
+                                    <div className="border-t border-gray-100 my-0.5"></div>
                                     <button
                                         onClick={() => { setShowOptionsMenu(false); onLeaveGroup?.(); }}
-                                        className="w-full px-4 py-3 text-left hover:bg-red-50 text-red-600 flex items-center gap-2"
+                                        className="w-full px-4 py-2.5 text-left hover:bg-red-50 text-red-600 flex items-center gap-2 text-sm"
                                     >
-                                        <ArrowLeft size={16} /> Leave Group
+                                        <LogOut size={16} className="text-red-600" /> <span>Leave group</span>
                                     </button>
                                 </div>
                             </>

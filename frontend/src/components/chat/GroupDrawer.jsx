@@ -21,58 +21,66 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
     // Get ride details of current user from member
     const rideDetails = group.members && group.members.length > 0 ? group.members.find(m => m.user._id === currentUser._id)?.ride : null;
 
+    const getInitials = (name) => {
+        if (!name) return '?';
+        const parts = name.trim().split(' ');
+        if (parts.length > 1) {
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        // For names like "User1", return first and last character e.g. "U1"
+        if (name.length > 1) {
+            return (name[0] + name[name.length - 1]).toUpperCase();
+        }
+        return name[0].toUpperCase();
+    };
+
     return (
         <>
             {/* Backdrop */}
             <div 
-                className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+                className="fixed inset-0 bg-black/30 z-40 backdrop-blur-[1px]"
                 onClick={onClose}
             ></div>
 
             {/* Drawer Panel */}
             <div className="fixed right-0 top-0 h-full w-full md:w-96 bg-white shadow-2xl z-50 overflow-y-auto animate-slide-in-right">
+                
                 {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-4 flex items-center justify-between shadow-md">
-                    <h2 className="text-xl font-bold">Group Details</h2>
+                <div className="sticky top-0 bg-white px-6 py-5 flex items-center justify-between z-10">
+                    <h2 className="text-xl font-bold text-gray-900">Group details</h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-white/20 rounded-full transition-colors"
+                        className="p-1.5 border border-gray-300 text-gray-500 rounded-full hover:bg-gray-50 transition-colors"
                         aria-label="Close drawer"
                     >
-                        <X size={24} />
+                        <X size={18} />
                     </button>
                 </div>
 
-                <div className="p-6 space-y-6">
+                <div className="px-6 pb-6 space-y-8">
+                    
                     {/* Group Info Section */}
                     <section>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                            <Users size={20} className="text-indigo-600" />
+                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                             Group Information
                         </h3>
-                        <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                            <div>
-                                <label className="text-xs text-gray-500 font-medium">Group Name</label>
-                                <p className="text-sm font-medium text-gray-800">{group.name}</p>
+                        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100 shadow-sm">
+                            <div className="flex justify-between items-center px-4 py-3.5">
+                                <span className="text-sm text-gray-500">Name</span>
+                                <span className="text-sm font-bold text-gray-900">{group.name}</span>
                             </div>
-                            <div>
-                                <label className="text-xs text-gray-500 font-medium">Created By</label>
-                                <p className="text-sm font-medium text-gray-800 flex items-center gap-1">
-                                    <Crown size={14} className="text-yellow-500" />
+                            <div className="flex justify-between items-center px-4 py-3.5">
+                                <span className="text-sm text-gray-500">Created by</span>
+                                <span className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
+                                    <Crown size={14} className="text-gray-400" />
                                     {group?.admin?.fullName || 'Unknown'}
-                                </p>
+                                </span>
                             </div>
-                            <div>
-                                <label className="text-xs text-gray-500 font-medium">Status</label>
-                                <p className="text-sm">
-                                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                        group.status === 'open' ? 'bg-green-100 text-green-800' :
-                                        group.status === 'closed' ? 'bg-red-100 text-red-800' :
-                                        'bg-gray-100 text-gray-800'
-                                    }`}>
-                                        {group.status.toUpperCase()}
-                                    </span>
-                                </p>
+                            <div className="flex justify-between items-center px-4 py-3.5">
+                                <span className="text-sm text-gray-500">Status</span>
+                                <span className="text-[11px] font-bold tracking-wide uppercase px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+                                    {group.status === 'open' ? 'Active' : group.status}
+                                </span>
                             </div>
                         </div>
                     </section>
@@ -80,85 +88,65 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
                     {/* Ride Details Section */}
                     {rideDetails && (
                         <section>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                <MapPin size={20} className="text-indigo-600" />
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                                 Ride Details
                             </h3>
-                            <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-                                <div>
-                                    <label className="text-xs text-gray-500 font-medium">Route</label>
-                                    <p className="text-sm font-medium text-gray-800">
-                                        {rideDetails.source} → {rideDetails.destination}
+                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100 shadow-sm">
+                                <div className="px-4 py-3.5">
+                                    <div className="flex items-center gap-1.5 text-slate-500 mb-1.5">
+                                        <MapPin size={14} />
+                                        <span className="text-sm">Route</span>
+                                    </div>
+                                    <p className="text-sm text-gray-900 leading-relaxed">
+                                        {rideDetails.source} &rarr; {rideDetails.destination}
                                     </p>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="text-xs text-gray-500 font-medium flex items-center gap-1">
-                                            <Calendar size={12} />
-                                            Date & Time
-                                        </label>
-                                        <p className="text-sm font-medium text-gray-800">
-                                            {formatDateTime(rideDetails.datetime)}
-                                        </p>
+                                <div className="px-4 py-3.5">
+                                    <div className="flex items-center gap-1.5 text-slate-500 mb-1.5">
+                                        <Calendar size={14} />
+                                        <span className="text-sm">Date & time</span>
                                     </div>
+                                    <p className="text-sm font-bold text-gray-900">
+                                        {formatDateTime(rideDetails.datetime)}
+                                    </p>
                                 </div>
-                                {/* {rideDetails.sourceLocation && (
-                                    <div>
-                                        <label className="text-xs text-gray-500 font-medium">Pickup Coordinates</label>
-                                        <p className="text-xs text-gray-600 font-mono">
-                                            {rideDetails.sourceLocation.coordinates[1].toFixed(6)}, {rideDetails.sourceLocation.coordinates[0].toFixed(6)}
-                                        </p>
-                                    </div>
-                                )}
-                                {rideDetails.destinationLocation && (
-                                    <div>
-                                        <label className="text-xs text-gray-500 font-medium">Drop Coordinates</label>
-                                        <p className="text-xs text-gray-600 font-mono">
-                                            {rideDetails.destinationLocation.coordinates[1].toFixed(6)}, {rideDetails.destinationLocation.coordinates[0].toFixed(6)}
-                                        </p>
-                                    </div>
-                                )} */}
                             </div>
                         </section>
                     )}
 
                     {/* Members List Section */}
-                    
                     <section>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                            <Users size={20} className="text-indigo-600" />
-                            Members ({group.members?.length || 0})
-                        </h3>
-                        <div className="space-y-2">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                                Members
+                            </h3>
+                            <span className="text-xs font-medium text-slate-500">{group.members?.length || 0}</span>
+                        </div>
+                        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100 shadow-sm">
                             {group.members?.map((member) => {
                                 const isMemberAdmin = member.user?._id === group.admin?._id;
                                 const isReady = member.isReady === true;
                                 
                                 return (
-                                    <div
-                                        key={member.user._id}
-                                        className="flex items-center justify-between bg-gray-50 rounded-lg p-3 hover:bg-gray-100 transition-colors"
-                                    >
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow">
+                                    <div key={member.user._id} className="flex items-center justify-between px-4 py-3.5">
+                                        <div className="flex items-center gap-3.5">
+                                            {/* Avatar */}
+                                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium text-sm">
                                                 {member.user?.avatar ? (
-                                                <img
-                                                    src={member.user.avatar} alt={member.user.fullName} className="w-full h-full rounded-full object-cover" />
+                                                    <img src={member.user.avatar} alt={member.user.fullName} className="w-full h-full rounded-full object-cover" />
                                                 ) : (
-                                                    <>
-                                                        {member.user.fullName?.charAt(0).toUpperCase() || '?'}
-                                                    </>
+                                                    getInitials(member.user.fullName)
                                                 )}
                                             </div>
+                                            
+                                            {/* Info */}
                                             <div>
-                                                <p className="text-sm font-medium text-gray-800 flex items-center gap-1">
+                                                <p className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                                                     {member.user?.fullName}
-                                                    {isMemberAdmin && (
-                                                        <Crown size={14} className="text-yellow-500" />
-                                                    )}
+                                                    {isMemberAdmin && <Crown size={14} className="text-gray-400" />}
                                                 </p>
-                                                <p className={`text-xs ${isReady ? 'text-green-600' : 'text-gray-500'}`}>
-                                                    {isReady ? '✓ Ready' : 'Not Ready'}
+                                                <p className={`text-xs mt-0.5 ${isReady ? 'text-green-700' : 'text-slate-400'}`}>
+                                                    {isReady ? 'Ready' : 'Not Ready'}
                                                 </p>
                                             </div>
                                         </div>
@@ -166,10 +154,10 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
                                         {isAdmin && !isMemberAdmin && (
                                             <button
                                                 onClick={() => onRemoveMember?.(member.user)}
-                                                className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                                className="p-1.5 text-red-500 hover:bg-red-50 rounded-full transition-colors"
                                                 aria-label="Remove member"
                                             >
-                                                <UserMinus size={18} />
+                                                <UserMinus size={16} />
                                             </button>
                                         )}
                                     </div>
@@ -181,25 +169,24 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
                     {/* Pending Invites for Current User */}
                     {userInvite && (
                         <section>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                <User size={20} className="text-indigo-600" />
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                                 Your Pending Invite
                             </h3>
-                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm">
                                 <p className="text-sm text-gray-700 mb-3">
                                     You have a pending invite to join this group.
                                 </p>
                                 <div className="flex gap-2">
                                     <button
                                         onClick={() => onAcceptInvite?.(userInvite._id)}
-                                        className="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                        className="flex-1 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                                     >
                                         <CheckCircle size={16} />
                                         Accept
                                     </button>
                                     <button
                                         onClick={() => onRejectInvite?.(userInvite._id)}
-                                        className="flex-1 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+                                        className="flex-1 bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm font-medium"
                                     >
                                         <XCircle size={16} />
                                         Reject
@@ -212,26 +199,26 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
                     {/* Admin Controls Section */}
                     {isAdmin && (
                         <section>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                                <Crown size={20} className="text-yellow-500" />
+                            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                                 Admin Controls
                             </h3>
-                            <div className="space-y-2">
-                                <button
-                                    className="w-full bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2 font-medium"
-                                >
-                                    <UserPlus size={18} />
+                            <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                                <button className="w-full px-4 py-3.5 text-left hover:bg-gray-50 flex items-center gap-2 text-sm font-medium text-gray-900">
+                                    <UserPlus size={16} className="text-gray-500" />
                                     Add Member
                                 </button>
                                 {group.requests && group.requests.length > 0 && (
-                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                        <p className="text-sm text-blue-800 font-medium mb-2">
-                                            {group.requests.length} Join Request(s) Pending
-                                        </p>
-                                        <button className="text-sm text-blue-600 hover:underline">
-                                            Review Requests
-                                        </button>
-                                    </div>
+                                    <>
+                                        <div className="border-t border-gray-100"></div>
+                                        <div className="px-4 py-3.5 bg-blue-50/50 flex justify-between items-center">
+                                            <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
+                                                <Users size={16} /> {group.requests.length} Join Request(s)
+                                            </p>
+                                            <button className="text-sm text-blue-600 hover:underline font-medium">
+                                                Review
+                                            </button>
+                                        </div>
+                                    </>
                                 )}
                             </div>
                         </section>
@@ -239,17 +226,16 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
 
                     {/* Future Feature Placeholder */}
                     <section className="opacity-50">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                            <MapPin size={20} className="text-indigo-600" />
+                        <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                             Live Location Sharing
                         </h3>
-                        <div className="bg-gray-50 rounded-lg p-4">
-                            <p className="text-sm text-gray-600 mb-3">
+                        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                            <p className="text-sm text-gray-500 mb-3">
                                 Share your real-time location with group members during the ride.
                             </p>
                             <button
                                 disabled
-                                className="w-full bg-gray-300 text-gray-500 px-4 py-2 rounded-lg cursor-not-allowed text-sm font-medium"
+                                className="w-full bg-gray-100 text-gray-400 px-4 py-2 rounded-lg cursor-not-allowed text-sm font-medium"
                             >
                                 Coming Soon
                             </button>
@@ -260,15 +246,11 @@ export default function GroupDrawer({ group, currentUser, isOpen, onClose, onAcc
 
             <style>{`
                 @keyframes slide-in-right {
-                    from {
-                        transform: translateX(100%);
-                    }
-                    to {
-                        transform: translateX(0);
-                    }
+                    from { transform: translateX(100%); }
+                    to { transform: translateX(0); }
                 }
                 .animate-slide-in-right {
-                    animation: slide-in-right 0.3s ease-out;
+                    animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
                 }
             `}</style>
         </>
