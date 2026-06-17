@@ -600,7 +600,7 @@ const getUserInvites = async (req, res) => {
             'invites.user': userId
         })
         .populate('admin', 'fullName gender avatar')
-        .select('name admin');
+        .select('name admin invites');
 
         // Filter invites to only those for the current user
         const invites = [];
