@@ -92,11 +92,12 @@ export default function GroupChat({ groupId, onBack }) {
             }, 3000);
         };
 
-        const handleRideStarted = (data) => {
+        const handleRideStarted = async (data) => {
             setCountdownEndTime(null);
             // In a component context, we might want to refresh data instead of reload page
-             // fetchGroupData(); // Implementation depends on your preference
-             window.location.reload(); 
+             // fetchGroupData();
+            //  window.location.reload(); 
+            await fetchGroupData();
         };
 
         const handleUserRemoved = (data) => {
@@ -115,6 +116,7 @@ export default function GroupChat({ groupId, onBack }) {
         on('user-typing', handleUserTyping);
         on('ride-started', handleRideStarted);
         on('user-removed', handleUserRemoved);
+        on('countdown-started',handleCountdownStarted);
 
         return () => {
             leaveGroup(groupId);
@@ -124,27 +126,66 @@ export default function GroupChat({ groupId, onBack }) {
             off('user-typing', handleUserTyping);
             off('ride-started', handleRideStarted);
             off('user-removed', handleUserRemoved);
+            off('countdown-started',handleCountdownStarted);
         };
     }, [groupId, isConnected]);
 
     // 2. Fetch Data
+    const fetchGroupData = async () => {
+        try {
+            const groupRes = await axios.get(`/groups/${groupId}`);
+
+            setGroup(groupRes.data.group);
+
+            const messagesRes = await axios.get(
+                `/groups/${groupId}/messages`
+            );
+
+            setMessages(messagesRes.data.messages || []);
+        }
+        catch(err){
+            console.log(err);
+        }
+    };
+
     useEffect(() => {
         if (!groupId) return;
-        const fetchData = async () => {
-            try {
+        // const fetchData = async () => {
+        //     try {
+        //         setLoading(true);
+        //         const groupRes = await axios.get(`/groups/${groupId}`);
+        //         setGroup(groupRes.data.group);
+        //         const messagesRes = await axios.get(`/groups/${groupId}/messages`);
+        //         setMessages(messagesRes.data.messages || []);
+        //         setLoading(false);
+        //         setTimeout(() => scrollToBottom('auto'), 100);
+        //     } catch (err) {
+        //         setError('Failed to load data');
+        //         setLoading(false);
+        //     }
+        // };
+        // fetchData();
+        const loadData = async () => {
+            try{
                 setLoading(true);
-                const groupRes = await axios.get(`/groups/${groupId}`);
-                setGroup(groupRes.data.group);
-                const messagesRes = await axios.get(`/groups/${groupId}/messages`);
-                setMessages(messagesRes.data.messages || []);
+
+                await fetchGroupData();
+
                 setLoading(false);
-                setTimeout(() => scrollToBottom('auto'), 100);
-            } catch (err) {
+
+                setTimeout(
+                    () => scrollToBottom('auto'),
+                    100
+                );
+            }
+            catch(err){
+
                 setError('Failed to load data');
+
                 setLoading(false);
             }
-        };
-        fetchData();
+        }
+        loadData();
     }, [groupId]);
 
     // Helper functions
@@ -153,6 +194,15 @@ export default function GroupChat({ groupId, onBack }) {
             sendMessage(groupId, content.trim());
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         }
+    };
+
+    const handleCountdownStarted = (data) => {
+
+        if(!data?.endTime) return;
+
+        setCountdownEndTime(
+            new Date(data.endTime).getTime()
+        );
     };
 
     const handleTyping = () => {
