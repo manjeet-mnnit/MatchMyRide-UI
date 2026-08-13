@@ -110,24 +110,48 @@ export default function GroupHeader({ group, currentUser, onLeaveGroup, onReady,
                     )}
 
                     {/* Status / Start / Closed Button - rectangular */}
-                    <div>
+                    <div className="flex items-center gap-2">
+                        {/* 1. Ready/Mark Ready Button (Always visible when group is open or during countdown) */}
+                        {(group.status === 'open' || countdown !== null) && (
+                            <button
+                                onClick={onReady}
+                                className={`px-3 md:py-1.5 py-1 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap border hover:cursor-pointer ${
+                                    isReady 
+                                        ? 'bg-green-100 text-green-700 border-green-300 hover:bg-green-200' 
+                                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                                }`}
+                            >
+                                {isReady ? 'Ready' : 'Mark Ready'}
+                            </button>
+                        )}
+
+                        {/* 2. Action Button (Countdown / Start / Waiting / Closed) */}
                         {countdown !== null ? (
                             <div className="bg-yellow-100 text-yellow-800 border border-yellow-300 px-3 md:py-1.5 py-1 rounded-md text-sm font-bold flex items-center gap-1.5 whitespace-nowrap animate-pulse">
                                 <Timer size={15} />
                                 {countdown}s
                             </div>
                         ) : group.status === 'open' ? (
-                            <button
-                                onClick={onStart}
-                                disabled={!isAdmin}
-                                className={`px-3 md:py-1.5 py-1 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
-                                    isAdmin 
-                                        ? 'bg-gray-900 hover:bg-gray-800 hover:cursor-pointer text-white' 
-                                        : 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200'
-                                }`}
-                            >
-                                {isAdmin ? 'Start Ride' : 'Waiting...'}
-                            </button>
+                            isAdmin ? (
+                                <button
+                                    onClick={onStart}
+                                    disabled={!members.every(m => m.isReady)}
+                                    className={`px-3 md:py-1.5 py-1 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                                        members.every(m => m.isReady)
+                                            ? 'bg-gray-900 hover:bg-gray-800 hover:cursor-pointer text-white' 
+                                            : 'bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200'
+                                    }`}
+                                >
+                                    Start Ride
+                                </button>
+                            ) : (
+                                <button
+                                    disabled
+                                    className="px-3 md:py-1.5 py-1 rounded-md text-sm font-semibold transition-all flex items-center gap-1.5 whitespace-nowrap bg-gray-100 cursor-not-allowed text-gray-400 border border-gray-200"
+                                >
+                                    Waiting...
+                                </button>
+                            )
                         ) : (
                             <div className={`px-3 md:py-1.5 py-1 rounded-md text-sm font-semibold flex items-center gap-1.5 whitespace-nowrap border ${
                                 group.status === 'locked' 

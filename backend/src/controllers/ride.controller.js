@@ -150,13 +150,14 @@ export const getRideMatchesV2 = async (req, res) => {
     const EARTH_RADIUS_METERS = 6378100;
     const THIRTY_MIN_MS = 30 * 60 * 1000;
     const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-    const ROUTE_BUFFER_KM = 2; // How far off-route can the driver pick up?
-
     // 3. Prep Logic for Case A (Neighbors)
     const from = turf.point(myStartCoords);
     const to = turf.point(myEndCoords);
     const totalDistKm = turf.distance(from, to, { units: "kilometers" });
     const peerRadiusRadians = (Math.max(totalDistKm, 0.5) * 0.1 * 1000) / EARTH_RADIUS_METERS;
+
+    // Dynamic Route Buffer: scale with distance to improve long route matching
+    const ROUTE_BUFFER_KM = Math.min(Math.max(totalDistKm * 0.1, 2), 20);
 
     // Search Polygons for Case B (Others Routes passing near my start & end)
     const startSearchPoly = turf.circle(myStartCoords, ROUTE_BUFFER_KM, {

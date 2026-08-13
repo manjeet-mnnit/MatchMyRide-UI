@@ -72,7 +72,13 @@ const RideForm = () => {
   const handleCreateRide = async (e) => {
     try {
       e.preventDefault();
-      const res = await axiosInstance.post('/rides/create', formData);
+      
+      const payload = {
+        ...formData,
+        datetime: new Date(formData.datetime).toISOString(),
+      };
+
+      const res = await axiosInstance.post('/rides/create', payload);
       setMessage(res.data.message);
       navigate('/my-rides');
     } catch (err) {
